@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Attendance - Sistem Kehadiran Cerdas</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Halaman Beranda -->
+    <div id="homepage" class="page active">
+        <div class="container">
+            <div class="logo">
+                🎤 Smart Attendance
+            </div>
+            <p class="subtitle">Sistem Kehadiran Cerdas Berbasis Pengenalan Suara</p>
+            
+            <div class="btn-group">
+                <button class="btn btn-user" onclick="showPage('user-attendance')">
+                    👨‍🎓 Masuk sebagai User
+                </button>
+                <button class="btn btn-admin" onclick="showPage('admin-login')">
+                    👨‍💼 Masuk sebagai Admin
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Halaman User Attendance -->
+    <div id="user-attendance" class="page">
+        <button class="back-btn" onclick="showPage('homepage')">← Kembali</button>
+        <div class="container">
+            <div class="logo">👨‍🎓 Absensi Siswa</div>
+            
+            <div id="attendance-step-1">
+                <h3 style="margin-bottom: 20px; color: #333;">Langkah 1: Absensi Suara</h3>
+                <div class="voice-section">
+                    <p style="margin-bottom: 20px; color: #666;">Klik tombol di bawah dan ucapkan kata <strong>"HADIR"</strong></p>
+                    <div class="audio-visualizer" id="visualizer1">
+                        Siap untuk merekam suara...
+                    </div>
+                    <button class="record-btn" id="recordBtn1" onclick="startRecording(1)">
+                        🎤 Mulai Rekam
+                    </button>
+                    <div id="status1" class="status-message hidden"></div>
+                </div>
+                <button class="btn btn-user hidden" id="nextStep1" onclick="showStep2()">Lanjut ke Data Diri →</button>
+            </div>
+
+            <div id="attendance-step-2" class="hidden">
+                <h3 style="margin-bottom: 20px; color: #333;">Langkah 2: Data Diri</h3>
+                <div class="form-group">
+                    <label for="studentId">ID Siswa (9 Digit)</label>
+                    <input type="text" id="studentId" maxlength="9" placeholder="Masukkan ID 9 digit">
+                </div>
+                <div class="form-group">
+                    <label for="studentName">Nama Lengkap</label>
+                    <input type="text" id="studentName" placeholder="Masukkan nama lengkap">
+                </div>
+                <button class="btn btn-user" onclick="showStep3()">Lanjut ke Verifikasi Suara →</button>
+            </div>
+
+            <div id="attendance-step-3" class="hidden">
+                <h3 style="margin-bottom: 20px; color: #333;">Langkah 3: Verifikasi Suara</h3>
+                <div class="voice-section">
+                    <p style="margin-bottom: 20px; color: #666;">Ucapkan kata <strong>"HADIR"</strong> sekali lagi untuk verifikasi</p>
+                    <div class="audio-visualizer" id="visualizer2">
+                        Siap untuk verifikasi suara...
+                    </div>
+                    <button class="record-btn" id="recordBtn2" onclick="startRecording(2)">
+                        🎤 Verifikasi Suara
+                    </button>
+                    <div id="status2" class="status-message hidden"></div>
+                </div>
+                <button class="btn btn-user hidden" id="verifyBtn" onclick="verifyAttendance()">Selesaikan Absensi</button>
+            </div>
+
+            <div id="attendance-result" class="hidden">
+                <div class="attendance-result">
+                    <h3>✅ Absensi Berhasil!</h3>
+                    <div class="attendance-info">
+                        <div class="info-item">
+                            <div class="info-label">ID Siswa</div>
+                            <div class="info-value" id="resultId">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Nama</div>
+                            <div class="info-value" id="resultName">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Status</div>
+                            <div class="info-value">HADIR</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Tanggal</div>
+                            <div class="info-value" id="resultDate">-</div>
+                        </div>
+                    </div>
+                    <button class="btn" style="background: white; color: #28a745; margin-top: 20px;" onclick="resetAttendance()">
+                        Absen Lagi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Halaman Admin Login -->
+    <div id="admin-login" class="page">
+        <button class="back-btn" onclick="showPage('homepage')">← Kembali</button>
+        <div class="container">
+            <div class="logo">👨‍💼 Login Admin</div>
+            
+            <div class="form-group">
+                <label for="adminId">ID Admin (9 Digit)</label>
+                <input type="text" id="adminId" maxlength="9" placeholder="Masukkan ID admin">
+            </div>
+            <div class="form-group">
+                <label for="adminName">Nama Admin</label>
+                <input type="text" id="adminName" placeholder="Masukkan nama admin">
+            </div>
+            <button class="btn btn-admin" onclick="adminLogin()">Masuk</button>
+            <div id="adminLoginStatus" class="status-message hidden"></div>
+        </div>
+    </div>
+
+    <!-- Dashboard Admin -->
+    <div id="admin-dashboard" class="page">
+        <button class="back-btn" onclick="showPage('homepage')">← Logout</button>
+        <div class="container">
+            <div class="logo">📊 Dashboard Admin</div>
+            <p class="subtitle">Selamat datang, <span id="adminNameDisplay">Admin</span></p>
+            
+            <div class="admin-dashboard">
+                <div class="dashboard-card" onclick="showPage('user-registration')">
+                    <h3>📝 Registrasi User</h3>
+                    <p>Daftarkan data siswa baru ke dalam sistem</p>
+                </div>
+                <div class="dashboard-card" onclick="showPage('voice-verification')">
+                    <h3>🎤 Verifikasi Suara</h3>
+                    <p>Rekam dan simpan data biometrik suara siswa</p>
+                </div>
+                <div class="dashboard-card" onclick="showPage('attendance-report')">
+                    <h3>📋 Laporan Absensi</h3>
+                    <p>Lihat data kehadiran siswa</p>
+                </div>
+                <div class="dashboard-card" onclick="showPage('student-data')">
+                    <h3>👥 Data Siswa</h3>
+                    <p>Kelola data siswa yang terdaftar</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registrasi User -->
+    <div id="user-registration" class="page">
+        <button class="back-btn" onclick="showPage('admin-dashboard')">← Kembali</button>
+        <div class="container">
+            <div class="logo">📝 Registrasi User Baru</div>
+            
+            <div class="form-group">
+                <label for="newStudentId">ID Siswa (9 Digit)</label>
+                <input type="text" id="newStudentId" maxlength="9" placeholder="Masukkan ID siswa">
+            </div>
+            <div class="form-group">
+                <label for="newStudentName">Nama Lengkap</label>
+                <input type="text" id="newStudentName" placeholder="Masukkan nama lengkap">
+            </div>
+            <div class="form-group">
+                <label for="newStudentClass">Kelas</label>
+                <input type="text" id="newStudentClass" placeholder="Masukkan kelas">
+            </div>
+            <button class="btn btn-admin" onclick="registerUser()">Daftarkan Siswa</button>
+            <div id="registrationStatus" class="status-message hidden"></div>
+        </div>
+    </div>
+
+    <!-- Verifikasi Suara -->
+    <div id="voice-verification" class="page">
+        <button class="back-btn" onclick="showPage('admin-dashboard')">← Kembali</button>
+        <div class="container">
+            <div class="logo">🎤 Verifikasi Suara User</div>
+            
+            <div class="form-group">
+                <label for="voiceStudentId">Pilih Siswa</label>
+                <select id="voiceStudentId">
+                    <option value="">Pilih siswa...</option>
+                </select>
+            </div>
+            
+            <div class="voice-section">
+                <p style="margin-bottom: 20px; color: #666;">Minta siswa untuk mengucapkan kata <strong>"HADIR"</strong> 3 kali</p>
+                <div class="audio-visualizer" id="visualizer3">
+                    Pilih siswa terlebih dahulu...
+                </div>
+                <button class="record-btn" id="recordBtn3" onclick="startVoiceRegistration()" disabled>
+                    🎤 Mulai Rekam (1/3)
+                </button>
+                <div id="voiceRegStatus" class="status-message hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Siswa -->
+    <div id="student-data" class="page">
+        <button class="back-btn" onclick="showPage('admin-dashboard')">← Kembali</button>
+        <div class="container">
+            <div class="logo">👥 Data Siswa</div>
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nama</th>
+                        <th>Kelas</th>
+                        <th>Status Suara</th>
+                    </tr>
+                </thead>
+                <tbody id="studentTableBody">
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #666;">Belum ada data siswa</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Laporan Absensi -->
+    <div id="attendance-report" class="page">
+        <button class="back-btn" onclick="showPage('admin-dashboard')">← Kembali</button>
+        <div class="container">
+            <div class="logo">📋 Laporan Absensi</div>
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nama</th>
+                        <th>Kelas</th>
+                        <th>Tanggal</th>
+                        <th>Waktu</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceTableBody">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #666;">Belum ada data absensi hari ini</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Watermark -->
+    <div class="watermark">
+        <span class="made-by">Made By:</span> Suta Viriya Ferdinand Oey, Jason Sebastiano M.G dan Jesselyn Nathalia
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
